@@ -1,39 +1,198 @@
-#clockcontainer{
-    position:relative;
-    height:40vw;
-    width:40vw;
-    margin:auto;
-    background:url('gg.jpg') no-repeat;
-    background-size:100%;
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background 0.45s ease, color 0.45s ease;
+}
 
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  overflow: hidden;
+  flex-direction: column;
 }
-#hour, #minute, #seconds{
-    position:absolute;
-    background:black;
-    border-radius:10px;
+
+/* Theme variables */
+:root {
+  --bg: linear-gradient(135deg, #cbe4ff, #e6f2ff);
+  --text: #111827;
+  --clock-bg: rgba(255, 255, 255, 0.78);
+  --hand-color: #111827;
+  --shadow: rgba(0, 0, 0, 0.15);
+  --overlay: rgba(255,255,255,0.22);
 }
-#hour{
-    width:1.8%;
-    height:25%;
-    top:25%;
-    left:49.5%;
-   opacity:0.8;
-   transform-origin:bottom;
+
+body.dark {
+  --bg: linear-gradient(135deg, #0d1117, #1e293b);
+  --text: #f1f5f9;
+  --clock-bg: rgba(20, 27, 38, 0.72);
+  --hand-color: #f8fafc;
+  --shadow: rgba(255, 255, 255, 0.06);
+  --overlay: rgba(0,0,0,0.44);
 }
-#minute{
-     width:1.5%;
-    height:32%;
-    top:18%;
-    left:49.5%;
-    opacity: 0.9;
-     transform-origin:bottom;
+
+/* Layout */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 20px;
 }
-#seconds{
-    width:1%;
-    height:38%;
-    top:13%;
-    left:49.5%;
-    opacity:1;
-    transform-origin:bottom;
-    
+
+/* Clock */
+#clockcontainer {
+  position: relative;
+  height: 70vmin;
+  width: 70vmin;
+  border-radius: 50%;
+  border: 6px solid var(--text);
+  box-shadow: 0 8px 40px var(--shadow), inset 0 0 12px var(--shadow);
+  background-image:
+    linear-gradient(var(--overlay), var(--overlay)),
+    url('clock-bg.jpg'); /* <-- replace with your image filename */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Numbers */
+.numbers {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.numbers span {
+  position: absolute;
+  font-weight: 600;
+  font-size: 1.15rem;
+  transform: rotate(calc(var(--i) * 30deg))
+             translateY(-27.8vmin)
+             rotate(calc(var(--i) * -30deg));
+  left: 50%;
+  top: 50%;
+  transform-origin: center;
+  user-select: none;
+}
+
+/* Hands */
+#hour, #minute, #seconds {
+  position: absolute;
+  background: var(--hand-color);
+  border-radius: 8px;
+  transform-origin: bottom;
+  left: 49.5%;
+  will-change: transform;
+}
+
+#hour {
+  width: 2%;
+  height: 25%;
+  top: 25%;
+}
+
+#minute {
+  width: 1.5%;
+  height: 33%;
+  top: 17%;
+}
+
+#seconds {
+  width: 1%;
+  height: 40%;
+  top: 10%;
+  background: #ef4444;
+}
+
+/* Center pivot */
+#clockcontainer::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--text);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Quote */
+.quote {
+  text-align: center;
+  max-width: 720px;
+  padding: 0 18px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text);
+  opacity: 0.95;
+}
+
+.quote p {
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.quote span {
+  display: block;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+/* Fade animation */
+.fade {
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Theme toggle */
+.theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 40;
+}
+
+#themeBtn {
+  font-size: 1.1rem;
+  background: var(--clock-bg);
+  color: var(--text);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+#themeBtn:hover { transform: scale(1.03); }
+
+/* Responsive */
+@media (max-width: 720px) {
+  #clockcontainer { height: 85vmin; width: 85vmin; }
+  .numbers span {
+    font-size: 1rem;
+    transform: rotate(calc(var(--i) * 30deg))
+               translateY(-33vmin)
+               rotate(calc(var(--i) * -30deg));
+  }
+  .quote { font-size: 1rem; max-width: 92vw; }
 }

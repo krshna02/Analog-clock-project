@@ -30,18 +30,20 @@
         <span style="--i:12">12</span>
       </div>
 
-      <div id="hour" aria-hidden="true"></div>
-      <div id="minute" aria-hidden="true"></div>
-      <div id="seconds" aria-hidden="true"></div>
+      <div id="hour"></div>
+      <div id="minute"></div>
+      <div id="seconds"></div>
     </div>
 
-    <!-- Quote Section (hidden until a quote is available) -->
+    <!-- Quote Section -->
     <div class="quote" id="quoteContainer" style="display:none;">
       <p id="quoteText"></p>
       <span id="quoteAuthor"></span>
     </div>
   </main>
 
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

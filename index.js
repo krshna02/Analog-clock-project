@@ -10,7 +10,7 @@
     const m = d.getMinutes();
     const s = d.getSeconds();
 
-    const hRotation = 30 * (h % 12) + m / 2; // hour hand with minute contribution
+    const hRotation = 30 * (h % 12) + m / 2;
     const mRotation = 6 * m;
     const sRotation = 6 * s;
 
@@ -44,27 +44,28 @@
 })();
 
 
-// ----------------------- Hourly Quotes (sync to top of hour) -----------------------
+// ----------------------- Hourly Quotes (Axios + Sync to Hour) -----------------------
 (function hourlyQuotes() {
   const quoteContainer = document.getElementById("quoteContainer");
   const quoteText = document.getElementById("quoteText");
   const quoteAuthor = document.getElementById("quoteAuthor");
 
-  // Call API and update UI; do not hide previous quote until new one is ready
+  // Fetch and show new quote using Axios
   async function fetchAndShowQuote() {
     try {
-      const res = await fetch("https://api.quotable.io/random?tags=time|life|success");
-      if (!res.ok) throw new Error("Network response not OK");
-      const data = await res.json();
+      const res = await axios.get("https://api.quotable.io/random?tags=time|life|success");
+      const data = res.data;
 
-      // Show container if hidden
+      // Show quote container (once)
       if (quoteContainer.style.display === "none") {
         quoteContainer.style.display = "block";
       }
 
-      // Update text with fade
+      // Update content
       quoteText.textContent = `“${data.content}”`;
       quoteAuthor.textContent = `— ${data.author || "Unknown"}`;
+
+      // Fade effect
       quoteText.classList.add("fade");
       quoteAuthor.classList.add("fade");
       setTimeout(() => {
@@ -72,17 +73,16 @@
         quoteAuthor.classList.remove("fade");
       }, 1200);
 
-      // Cache with current hour
+      // Cache quote with current hour
       const now = new Date();
       const cache = { text: data.content, author: data.author || "Unknown", hour: now.getHours() };
       localStorage.setItem("cachedQuote", JSON.stringify(cache));
     } catch (err) {
-      // If fetch failed we silently keep previous quote (no flashing)
-      console.error("Quote fetch failed:", err);
+      console.error("Axios quote fetch failed:", err);
     }
   }
 
-  // Load cached quote or fetch immediately
+  // Load from cache or fetch first
   function loadInitialQuote() {
     const cached = JSON.parse(localStorage.getItem("cachedQuote"));
     const now = new Date();
@@ -91,13 +91,11 @@
       quoteText.textContent = `“${cached.text}”`;
       quoteAuthor.textContent = `— ${cached.author}`;
     } else {
-      // fetch but don't remove any existing content (there's none on first load)
       fetchAndShowQuote();
     }
   }
 
-  // Schedule next fetch exactly at the start of the next hour,
-  // then fetch every hour on the hour.
+  // Schedule fetch at the start of each hour
   function scheduleHourlyFetch() {
     const now = new Date();
     const msToNextHour =
@@ -105,16 +103,10 @@
       (60 - now.getSeconds()) * 1000 -
       now.getMilliseconds();
 
-    // Safety: if msToNextHour is negative for some reason, set small timeout
-    const firstTimeout = Math.max(msToNextHour, 0);
-
     setTimeout(() => {
-      // Fetch right at the top of the hour
       fetchAndShowQuote();
-
-      // Then set repeating hourly interval aligned with the hour
       setInterval(fetchAndShowQuote, 60 * 60 * 1000);
-    }, firstTimeout);
+    }, Math.max(msToNextHour, 0));
   }
 
   // Initialize
